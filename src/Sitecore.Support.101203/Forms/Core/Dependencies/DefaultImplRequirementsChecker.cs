@@ -6,6 +6,7 @@ using System.Reflection;
 
 namespace Sitecore.Support.Forms.Core.Dependencies
 {
+    [Serializable]
     public class DefaultImplRequirementsChecker : IRequirementsChecker
     {
         private readonly ISettings settings;
@@ -19,28 +20,38 @@ namespace Sitecore.Support.Forms.Core.Dependencies
         public bool CheckRequirements(Attribute[] attributes)
         {
             Assert.ArgumentNotNull(attributes, "attributes");
-            foreach (Attribute attribute in attributes)
+            bool result;
+            int num;
+            for (int i = 0; i < attributes.Length; i = num + 1)
             {
-                RequiredAttribute attribute2 = attribute as RequiredAttribute;
-                if (attribute2 != null)
+                Attribute attribute = attributes[i];
+                RequiredAttribute requiredAttribute = attribute as RequiredAttribute;
+                bool flag = requiredAttribute != null;
+                if (flag)
                 {
-                    PropertyInfo property = this.settings.GetType().GetProperty(attribute2.PropertyName);
-                    if (property == null)
+                    PropertyInfo property = this.settings.GetType().GetProperty(requiredAttribute.PropertyName);
+                    bool flag2 = property == null;
+                    if (flag2)
                     {
-                        throw new Exception("There is not required property " + attribute2.PropertyName);
+                        throw new Exception("There is not required property " + requiredAttribute.PropertyName);
                     }
-                    if (property.PropertyType != typeof(bool))
+                    bool flag3 = property.PropertyType != typeof(bool);
+                    if (flag3)
                     {
                         throw new Exception("Required property is not bool type");
                     }
-                    bool flag = (bool)property.GetValue(this.settings);
-                    if (flag != attribute2.PropertyValue)
+                    bool flag4 = (bool)property.GetValue(this.settings);
+                    bool flag5 = flag4 != requiredAttribute.PropertyValue;
+                    if (flag5)
                     {
-                        return false;
+                        result = false;
+                        return result;
                     }
                 }
+                num = i;
             }
-            return true;
+            result = true;
+            return result;
         }
 
         public bool CheckRequirements(Type objType)
